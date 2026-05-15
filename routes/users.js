@@ -1,11 +1,16 @@
-import express, { Router } from "express";
-import * as authController from "../controllers/user.controller.js";
+import { Router } from "express";
+import * as userController from "../controllers/user.controller.js";
 import { validateBody } from "../middleware/validateBody.js";
+import { authenticate } from "../middleware/auth.js";
+import { ROLES } from "../utils/constant.js";
 import {
-  registerSchema,
-  loginSchema,
   forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
   resetPasswordSchema,
+  listUserQuerySchema,
+  changePasswordSchema,
+  updateProfileSchema,
 } from "../validations/user.validation.js";
 
 export default (app) => {
@@ -15,19 +20,43 @@ export default (app) => {
   router.post(
     "/register",
     validateBody(registerSchema),
-    authController.register,
+    userController.register,
   );
-  router.post("/login", validateBody(loginSchema), authController.login);
+  router.post("/login", validateBody(loginSchema), userController.login);
   router.post(
     "/forgot-password",
     validateBody(forgotPasswordSchema),
-    authController.forgotPassword,
+    userController.forgotPassword,
   );
   router.post(
     "/reset-password/:token",
     validateBody(resetPasswordSchema),
-    authController.resetPassword,
+    userController.resetPassword,
   );
+  
+  // ── Protected routes ───────────────────────────────────────
+  router.put(
+    "/change-password",
+    authenticate(),
+    validateBody(changePasswordSchema),
+    userController.changePassword,
+  );
+  
+  router.patch(
+    "/profile",
+    authenticate(),
+    validateBody(updateProfileSchema),
+    userController.updateProfile,
+  );
+
+  router.get(
+    "/users",
+    authenticate(ROLES.ADMIN),
+    validateBody(listUserQuerySchema),
+    userController.getAllUsers,
+  );
+
+  router.get("/users/:id", userController.getUserById);
 
   app.use("/", router);
 };

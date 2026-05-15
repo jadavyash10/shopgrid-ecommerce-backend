@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
-import { ROLES, STATUS, HTTP_STATUS } from "../utils/constant.js";
+import Seller from "../models/seller.model.js";
+import { ROLES, STATUS, HTTP_STATUS, DEFAULT_PAGE_SIZE } from "../utils/constant.js";
 import {
   generateResetToken,
   hashToken,
@@ -130,4 +131,83 @@ export const resetPassword = async ({ token, password }) => {
   await user.save();
 
   return user;
+};
+
+// ── Change Password ────────────────────────────────────────
+export const changePassword = async (userId, { oldPassword, newPassword }) => {
+  const user = await User.findById(userId).select("+password");
+
+  if (!user || !(await user.comparePassword(oldPassword))) {
+    throw createError("Incorrect old password", HTTP_STATUS.UNAUTHORIZED);
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return user;
+};
+
+// ── Update Profile ──────────────────────────────────────────
+export const updateProfile = async (userId, { name }) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw createError("User not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  user.name = name;
+  await user.save();
+
+  // If user is a seller, update the name in Seller model too
+  if (user.role === ROLES.SELLER) {
+    await Seller.findByIdAndUpdate(
+      user._id,
+      { fullName: name },
+      { runValidators: true },
+    );
+  }
+
+  return user;
+};
+
+// ── Get All Users ────────────────────────────────────────────
+export const getAllUsers = async (queryData) => {
+  const { page = 1, limit = DEFAULT_PAGE_SIZE, search, role, status } = queryData;
+  const skip = (page - 1) * limit;
+
+  const query = {};
+  if (role) query.role = role;
+  if (status) query.status = status;
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const sort = { createdAt: -1 };
+
+  const [users, total] = await Promise.all([
+    User.find(query).sort(sort).skip(skip).limit(limit),
+    User.countDocuments(query),
+  ]);
+
+  return {
+    users: users.map((user) => user.toSafeObject()),
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+// ── Get User By Id ───────────────────────────────────────────
+export const getUserById = async (id) => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw createError("User not found", HTTP_STATUS.NOT_FOUND);
+  }
+  return user.toSafeObject();
 };

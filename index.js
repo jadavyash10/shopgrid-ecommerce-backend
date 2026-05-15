@@ -1,13 +1,17 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import helmet from "helmet";
+import morgan from "morgan";
 import "./config/db.js";
 import errorHandler from "./middleware/errorHandler.js";
 import routes from "./routes/index.js";
 import { PORT } from "./utils/constant.js";
 
 const app = express();
+app.use(cookieParser());
+
 
 app.use(helmet()); // Sets secure HTTP headers
 
@@ -23,6 +27,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parses form data
 
 app.use(express.static("public")); // Serves files from /public folder
+
+app.use(morgan("dev")); // Standard dev logging
 
 // ── Routes ───────────────────────────────────────────────
 app.get("/", (req, res) => {

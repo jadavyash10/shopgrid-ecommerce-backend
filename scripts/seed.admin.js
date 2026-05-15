@@ -6,7 +6,7 @@ import { MONGO_URL, ROLES, STATUS } from "../utils/constant.js";
 // ── Admin credentials from .env ────────────────────────────
 const ADMIN_SEED = {
   name: process.env.ADMIN_NAME || "Super Admin",
-  email: process.env.ADMIN_EMAIL || "admin@shopgrid.com",
+  email: process.env.ADMIN_EMAIL || "admin@yopmail.com",
   password: process.env.ADMIN_PASSWORD || "Admin@123456", // override in .env!
   role: ROLES.ADMIN,
   status: STATUS.ACTIVE,

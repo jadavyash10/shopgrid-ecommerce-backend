@@ -6,6 +6,7 @@ export const ROLES = {
 
 export const COLLECTIONS = {
   USER: "users",
+  SELLER: "sellers",
 };
 
 export const STATUS = {
@@ -49,7 +50,12 @@ export const EMAIL_PORT = process.env.EMAIL_PORT;
 export const PASSWORD_RESET_TOKEN_EXPIRES_IN = 3600000; // 1 hour
 export const ACCOUNT_ACTIVATION_TOKEN_EXPIRES_IN = 3600000; // 1 hour
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif"];
+export const ALLOWED_FILE_TYPES = [
+  "image/jpg",
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+];
 export const DEFAULT_PAGE_SIZE = 10;
 export const MAX_PAGE_SIZE = 100;
 export const CACHE_TTL = 60 * 60; // 1 hour
