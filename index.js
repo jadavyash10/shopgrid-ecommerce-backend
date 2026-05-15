@@ -1,8 +1,10 @@
-import "dotenv/config";
-import "./config/db.js";
-import express from "express";
 import cors from "cors";
+import "dotenv/config";
+import express from "express";
 import helmet from "helmet";
+import "./config/db.js";
+import errorHandler from "./middleware/errorHandler.js";
+import routes from "./routes/index.js";
 import { PORT } from "./utils/constant.js";
 
 const app = express();
@@ -22,9 +24,14 @@ app.use(express.urlencoded({ extended: true })); // Parses form data
 
 app.use(express.static("public")); // Serves files from /public folder
 
+// ── Routes ───────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.send("Server Running");
 });
+app.use("/api", routes);
+
+// Global error handler
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server started successfully on port ${PORT}`);
