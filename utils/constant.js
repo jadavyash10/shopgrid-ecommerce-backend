@@ -7,6 +7,7 @@ export const ROLES = {
 export const COLLECTIONS = {
   USER: "users",
   SELLER: "sellers",
+  CATEGORY: "categories",
 };
 
 export const STATUS = {
