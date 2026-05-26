@@ -1,5 +1,5 @@
 import Category from "../models/category.model.js";
-import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
+import { uploadImagesToCloudinary, deleteMediaFromCloudinary } from "../utils/cloudinary.js";
 import { DEFAULT_PAGE_SIZE, HTTP_STATUS } from "../utils/constant.js";
 import { createError } from "../utils/javascript.js";
 
@@ -140,9 +140,15 @@ export const updateCategory = async (id, data, file) => {
 
   // If a new banner image is provided, upload it to Cloudinary
   if (file) {
+    const oldBannerImage = category.bannerImage;
     const imageUrls = await uploadImagesToCloudinary([file]);
     if (imageUrls && imageUrls.length > 0) {
       category.bannerImage = imageUrls[0];
+      if (oldBannerImage) {
+        deleteMediaFromCloudinary(oldBannerImage).catch((err) =>
+          console.error("❌ Asynchronous category image deletion failed:", err.message)
+        );
+      }
     } else {
       throw createError(
         "Failed to upload new banner image to Cloudinary",
@@ -168,6 +174,14 @@ export const deleteCategory = async (id) => {
     throw createError("Category not found", HTTP_STATUS.NOT_FOUND);
   }
 
+  const oldBannerImage = category.bannerImage;
   await Category.findByIdAndDelete(id);
+  
+  if (oldBannerImage) {
+    deleteMediaFromCloudinary(oldBannerImage).catch((err) =>
+      console.error("❌ Asynchronous category image deletion failed:", err.message)
+    );
+  }
+  
   return category;
 };

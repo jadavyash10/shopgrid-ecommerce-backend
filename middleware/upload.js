@@ -19,3 +19,19 @@ export const upload = multer({
   },
   fileFilter,
 });
+
+export const uploadMediaMiddleware = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB max size to allow videos
+  },
+  fileFilter: (req, file, cb) => {
+    const isImage = file.mimetype.startsWith("image/");
+    const isVideo = file.mimetype.startsWith("video/");
+    if (isImage || isVideo) {
+      cb(null, true);
+    } else {
+      cb(createError("Invalid file type. Only standard images and videos are allowed.", 400), false);
+    }
+  },
+});
