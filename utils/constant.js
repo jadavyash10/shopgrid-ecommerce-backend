@@ -2,12 +2,14 @@ export const ROLES = {
   USER: "user",
   SELLER: "seller",
   ADMIN: "admin",
+  OPERATOR: "operator",
 };
 
 export const COLLECTIONS = {
   USER: "users",
   SELLER: "sellers",
   CATEGORY: "categories",
+  BOOKING: "bookings",
 };
 
 export const STATUS = {
