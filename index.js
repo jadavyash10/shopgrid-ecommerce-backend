@@ -8,6 +8,7 @@ import "./config/db.js";
 import errorHandler from "./middleware/errorHandler.js";
 import routes from "./routes/index.js";
 import { PORT } from "./utils/constant.js";
+import { initScheduler } from "./utils/scheduler.js";
 
 const app = express();
 app.use(cookieParser());
@@ -47,4 +48,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server started successfully on port ${PORT}`);
+  initScheduler();
 });

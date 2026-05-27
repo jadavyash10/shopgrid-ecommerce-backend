@@ -10,6 +10,7 @@ export const COLLECTIONS = {
   SELLER: "sellers",
   CATEGORY: "categories",
   BOOKING: "bookings",
+  INVOICE: "invoices",
 };
 
 export const STATUS = {
