@@ -146,6 +146,17 @@ const productSchema = new Schema(
       type: [variantSchema],
       default: [],
     },
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: [0, "Average rating cannot be negative"],
+      max: [5, "Average rating cannot exceed 5"],
+    },
+    numOfReviews: {
+      type: Number,
+      default: 0,
+      min: [0, "Number of reviews cannot be negative"],
+    },
   },
   { timestamps: true }
 );

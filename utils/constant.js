@@ -11,6 +11,7 @@ export const COLLECTIONS = {
   CATEGORY: "categories",
   BOOKING: "bookings",
   INVOICE: "invoices",
+  REVIEW: "reviews",
 };
 
 export const STATUS = {
