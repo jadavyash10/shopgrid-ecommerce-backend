@@ -90,4 +90,8 @@ export const updateSellerSchema = Joi.object({
     Joi.array().items(Joi.string()).min(1),
     Joi.string(),
   ).optional(),
+  remainingImages: Joi.alternatives().try(
+    Joi.array().items(Joi.string()),
+    Joi.string().allow(""),
+  ).optional(),
 });

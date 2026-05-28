@@ -1,6 +1,7 @@
 import Product from "../models/product.model.js";
 import Category from "../models/category.model.js";
 import User from "../models/user.model.js";
+import Seller from "../models/seller.model.js";
 import { createError } from "../utils/javascript.js";
 import { HTTP_STATUS, DEFAULT_PAGE_SIZE } from "../utils/constant.js";
 import { deleteMediaFromCloudinary } from "../utils/cloudinary.js";
@@ -59,11 +60,20 @@ export const createProduct = async (productData, currentUser) => {
     }
     
     // Database integrity: verify seller exists and has seller role
-    const sellerExists = await User.findOne({ _id: productFields.seller, role: "seller" });
-    if (!sellerExists) {
+    // Support matching both User ID directly or Seller ID (resolving by email in case of mismatched seed IDs)
+    let sellerUser = await User.findOne({ _id: productFields.seller, role: "seller" });
+    if (!sellerUser) {
+      const sellerDoc = await Seller.findById(productFields.seller);
+      if (sellerDoc) {
+        sellerUser = await User.findOne({ email: sellerDoc.email, role: "seller" });
+      }
+    }
+    
+    if (!sellerUser) {
       throw createError("Seller user not found", HTTP_STATUS.BAD_REQUEST);
     }
     
+    productFields.seller = sellerUser._id;
     productFields.status = "approved";
   }
 
@@ -171,10 +181,9 @@ export const getProducts = async (queryParams, restrictToSellerId = null) => {
     sortOrder = "desc",
   } = queryParams;
 
-  // Enforce minimum 20 items per page limit in backend
-  let limitValue = Number(limit || 20);
-  if (isNaN(limitValue) || limitValue < 20) {
-    limitValue = 20;
+  let limitValue = Number(limit || DEFAULT_PAGE_SIZE);
+  if (isNaN(limitValue) || limitValue < 1) {
+    limitValue = DEFAULT_PAGE_SIZE;
   }
 
   const skip = (page - 1) * limitValue;

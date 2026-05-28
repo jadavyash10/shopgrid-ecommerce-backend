@@ -101,7 +101,7 @@ export default (app) => {
   // Update own product (reverts status to "pending_review" if currently approved)
   router.put(
     "/:id",
-    authenticate(ROLES.SELLER),
+    authenticate([ROLES.SELLER, ROLES.ADMIN]),
     upload.none(),
     parseProductFormData,
     validateBody(updateProductSchema),

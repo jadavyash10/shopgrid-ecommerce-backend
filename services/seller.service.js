@@ -1,6 +1,6 @@
 import Seller from "../models/seller.model.js";
 import User from "../models/user.model.js";
-import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
+import { uploadImagesToCloudinary, deleteMediaFromCloudinary } from "../utils/cloudinary.js";
 import {
   DEFAULT_PAGE_SIZE,
   HTTP_STATUS,
@@ -233,13 +233,34 @@ export const updateSeller = async (id, data, files) => {
     throw createError("Seller not found", HTTP_STATUS.NOT_FOUND);
   }
 
-  const { fullName, productCategories, ...otherData } = data;
+  const { fullName, productCategories, remainingImages, ...otherData } = data;
 
   // 2. Handle Image Updates
+  let currentImages = seller.sampleProductImages || [];
+  const oldImages = [...currentImages];
+
+  if (remainingImages !== undefined) {
+    if (Array.isArray(remainingImages)) {
+      currentImages = remainingImages;
+    } else if (typeof remainingImages === "string") {
+      currentImages = remainingImages.trim() ? [remainingImages.trim()] : [];
+    }
+  }
+
   if (files && files.length > 0) {
     const imageUrls = await uploadImagesToCloudinary(files);
-    seller.sampleProductImages = [...seller.sampleProductImages, ...imageUrls];
+    currentImages = [...currentImages, ...imageUrls];
   }
+
+  // Enforce validation that at least one sample product image must remain
+  if (currentImages.length === 0) {
+    throw createError(
+      "At least one sample product image is required",
+      HTTP_STATUS.BAD_REQUEST
+    );
+  }
+
+  seller.sampleProductImages = currentImages;
 
   // 3. Update Text Fields
   if (fullName) seller.fullName = fullName;
@@ -267,6 +288,16 @@ export const updateSeller = async (id, data, files) => {
   if (user) {
     if (fullName) user.name = fullName;
     await user.save();
+  }
+
+  // Clean up removed images from Cloudinary asynchronously
+  const removedImages = oldImages.filter((img) => !currentImages.includes(img));
+  if (removedImages.length > 0) {
+    removedImages.forEach((url) => {
+      deleteMediaFromCloudinary(url).catch((err) =>
+        console.error("❌ Asynchronous media deletion failed:", err.message)
+      );
+    });
   }
 
   return seller;
