@@ -70,6 +70,21 @@ export const changePassword = async (req, res, next) => {
   }
 };
 
+export const getProfile = async (req, res, next) => {
+  try {
+    const profile = await userService.getProfile(req.user._id);
+
+    return sendResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Profile retrieved successfully",
+      profile,
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const updateProfile = async (req, res, next) => {
   try {
     const user = await userService.updateProfile(req.user._id, req.body);

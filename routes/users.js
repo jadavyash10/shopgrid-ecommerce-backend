@@ -42,6 +42,12 @@ export default (app) => {
     userController.changePassword,
   );
   
+  router.get(
+    "/profile",
+    authenticate(),
+    userController.getProfile,
+  );
+
   router.patch(
     "/profile",
     authenticate(),

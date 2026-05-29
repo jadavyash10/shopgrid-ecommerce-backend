@@ -25,6 +25,12 @@ export default (app) => {
   );
 
   // ── Protected routes (Seller & Admin) ───────────────────────
+  router.get(
+    "/:id",
+    authenticate(),
+    sellerController.getSellerById,
+  );
+
   router.patch(
     "/:id",
     authenticate(), // both admin and seller can access; controller handles permission
@@ -41,8 +47,6 @@ export default (app) => {
     validateBody(listQuerySchema), // query validation
     sellerController.getAllSellers,
   );
-
-  router.get("/:id", sellerController.getSellerById);
 
   router.patch(
     "/:id/status",

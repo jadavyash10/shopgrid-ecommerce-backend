@@ -36,6 +36,13 @@ export const createCheckoutSessionSchema = Joi.object({
     .trim()
     .optional()
     .allow("", null),
+  address: Joi.string()
+    .trim()
+    .required()
+    .messages({
+      "any.required": "Shipping address is required",
+      "string.empty": "Shipping address cannot be empty",
+    }),
 });
 
 export const queryBookingsSchema = Joi.object({

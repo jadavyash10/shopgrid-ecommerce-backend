@@ -7,7 +7,7 @@ import { HTTP_STATUS, BASE_URL } from "../utils/constant.js";
 
 // ── 1. Create Checkout Session & Pending Booking (Supports Guest Checkout) ───────
 export const createCheckoutSession = async (data, currentUser) => {
-  const { productId, quantity, variantSku, guestEmail, guestName } = data;
+  const { productId, quantity, variantSku, guestEmail, guestName, address } = data;
 
   // Retrieve product and check state
   const product = await Product.findById(productId);
@@ -63,6 +63,7 @@ export const createCheckoutSession = async (data, currentUser) => {
   // Create initial pending Booking document
   const booking = await Booking.create({
     ...guestFields,
+    address,
     product: product._id,
     variantSku: variantSku || null,
     variantAttributes,

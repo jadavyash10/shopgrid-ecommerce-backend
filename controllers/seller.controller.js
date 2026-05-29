@@ -34,7 +34,17 @@ export const getAllSellers = async (req, res, next) => {
 
 export const getSellerById = async (req, res, next) => {
   try {
-    const seller = await sellerService.getSellerById(req.params.id);
+    const { id } = req.params;
+    const seller = await sellerService.getSellerById(id);
+
+    // Permission Check: Admin can view any; Seller can only view their own
+    if (req.user.role === ROLES.SELLER && req.user.email !== seller.email) {
+      return sendResponse(
+        res,
+        HTTP_STATUS.FORBIDDEN,
+        "You are not authorized to view this seller's information",
+      );
+    }
 
     return sendResponse(
       res,

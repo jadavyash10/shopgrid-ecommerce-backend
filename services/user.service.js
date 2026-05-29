@@ -147,6 +147,27 @@ export const changePassword = async (userId, { oldPassword, newPassword }) => {
   return user;
 };
 
+// ── Get Profile ─────────────────────────────────────────────
+export const getProfile = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createError("User not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  const userObj = user.toSafeObject();
+
+  if (user.role === ROLES.SELLER) {
+    const seller = await Seller.findOne({
+      $or: [{ _id: userId }, { email: user.email }],
+    });
+    if (seller) {
+      userObj.sellerProfile = seller;
+    }
+  }
+
+  return userObj;
+};
+
 // ── Update Profile ──────────────────────────────────────────
 export const updateProfile = async (userId, { name }) => {
   const user = await User.findById(userId);

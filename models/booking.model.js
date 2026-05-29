@@ -20,6 +20,11 @@ const bookingSchema = new Schema(
       trim: true,
       default: null,
     },
+    address: {
+      type: String,
+      required: [true, "Shipping address is required"],
+      trim: true,
+    },
     product: {
       type: Schema.Types.ObjectId,
       ref: "Product",
